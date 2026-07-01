@@ -45,7 +45,7 @@
     --shadow:0 8px 26px rgba(0,0,0,.4);
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
+  html,body{height:100%;overflow-x:hidden}
   body{
     font-family:'Manrope',system-ui,sans-serif;
     background:
@@ -81,7 +81,7 @@
   .app{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
 
   /* ===== Telas ===== */
-  .view{flex:1;overflow-y:auto;display:none;flex-direction:column;-webkit-overflow-scrolling:touch}
+  .view{flex:1;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;-webkit-overflow-scrolling:touch}
   .view.active{display:flex}
   .view::-webkit-scrollbar{width:0}
 
@@ -356,7 +356,7 @@
 
   /* ===== Navbar (abas do aluno) ===== */
   #v-student{overflow:hidden}
-  .tabscroll{flex:1;overflow-y:auto;padding:18px 18px 18px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+  .tabscroll{flex:1;overflow-y:auto;overflow-x:hidden;padding:18px 18px 18px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
   .tabscroll::-webkit-scrollbar{width:0}
   .tabbar{flex:0 0 auto;display:flex;background:var(--card);border-top:1px solid var(--line)}
   .tabbar button{flex:1;background:none;border:none;cursor:pointer;font-family:inherit;
