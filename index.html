@@ -1,0 +1,1794 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treino • App do Personal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue-deep:#0E2A47;
+    --blue:#2E7DD1;
+    --blue-soft:#E8F1FB;
+    --bg:#F4F6F8;
+    --card:#FFFFFF;
+    --ink:#10243B;
+    --muted:#6B7B8C;
+    --line:#E7ECF1;
+    --done:#16A34A;
+    --done-soft:#E6F6EC;
+    --miss:#DC2626;
+    --miss-soft:#FCEBEB;
+    --rec:#F59E0B;
+    --rec-soft:#FEF3E0;
+    --radius:18px;
+    --shadow:0 6px 22px rgba(14,42,71,.08);
+  }
+  body.dark{
+    --blue-deep:#0A1828;
+    --blue:#4D9BE6;
+    --blue-soft:#16304B;
+    --bg:#0B1220;
+    --card:#131E2E;
+    --ink:#E8EEF5;
+    --muted:#8DA0B4;
+    --line:#23344A;
+    --done-soft:#10301F;
+    --miss-soft:#3A1A1A;
+    --rec-soft:#3A2C12;
+    --shadow:0 8px 26px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Manrope',system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #1a7a8a22, transparent),
+      radial-gradient(1000px 500px at 0% 110%, #2E7DD122, transparent),
+      #1b2433;
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh;padding:30px 16px;gap:26px;flex-wrap:wrap;
+  }
+
+  /* ===== Moldura iPhone ===== */
+  .phone{
+    width:390px;height:844px;background:#000;border-radius:54px;
+    padding:13px;box-shadow:0 30px 70px rgba(0,0,0,.55), inset 0 0 0 2px #2a2a2a;
+    position:relative;flex:0 0 auto;
+  }
+  .screen{
+    width:100%;height:100%;background:var(--bg);border-radius:42px;
+    overflow:hidden;position:relative;display:flex;flex-direction:column;
+    transition:background .3s;
+  }
+  .island{
+    position:absolute;top:11px;left:50%;transform:translateX(-50%);
+    width:118px;height:34px;background:#000;border-radius:20px;z-index:50;
+  }
+  .statusbar{
+    height:52px;flex:0 0 auto;display:flex;align-items:flex-end;
+    justify-content:space-between;padding:0 28px 6px;font-size:14px;
+    font-weight:700;color:var(--ink);z-index:40;
+  }
+  .statusbar .icons{display:flex;gap:6px;align-items:center;font-size:12px}
+
+  .app{flex:1;display:flex;flex-direction:column;min-height:0;position:relative}
+
+  /* ===== Telas ===== */
+  .view{flex:1;overflow-y:auto;display:none;flex-direction:column;-webkit-overflow-scrolling:touch}
+  .view.active{display:flex}
+  .view::-webkit-scrollbar{width:0}
+
+  /* ===== Header app ===== */
+  .topbar{
+    background:linear-gradient(135deg,var(--blue-deep),var(--blue) 130%);
+    color:#fff;padding:18px 22px 24px;position:relative;flex:0 0 auto;
+  }
+  .topbar.curve{border-radius:0 0 26px 26px}
+  .topbar h1{font-size:21px;font-weight:800;letter-spacing:-.3px}
+  .topbar .sub{font-size:13px;opacity:.85;margin-top:2px;font-weight:500}
+  .topbar-row{display:flex;justify-content:space-between;align-items:flex-start}
+  .iconbtn{
+    background:rgba(255,255,255,.16);border:none;color:#fff;width:38px;height:38px;
+    border-radius:12px;font-size:17px;cursor:pointer;display:grid;place-items:center;
+    transition:background .15s;
+  }
+  .iconbtn:hover{background:rgba(255,255,255,.26)}
+  .back{
+    background:none;border:none;color:#fff;font-size:15px;font-weight:600;
+    cursor:pointer;display:flex;align-items:center;gap:5px;margin-bottom:10px;opacity:.92;
+  }
+
+  .body{padding:18px 18px 110px;display:flex;flex-direction:column;gap:14px}
+
+  /* ===== Cards de aluno ===== */
+  .student-card{
+    background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:16px;cursor:pointer;border:1px solid var(--line);transition:transform .12s;
+  }
+  .student-card:active{transform:scale(.985)}
+  .sc-top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .sc-name{font-size:17px;font-weight:800;color:var(--ink)}
+  .sc-value{font-size:13px;font-weight:700;color:var(--blue);background:var(--blue-soft);
+    padding:4px 9px;border-radius:8px;white-space:nowrap}
+  .chips{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+  .chip{font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;display:flex;align-items:center;gap:5px}
+  .chip.done{background:var(--done-soft);color:var(--done)}
+  .chip.miss{background:var(--miss-soft);color:var(--miss)}
+  .chip.rec{background:var(--rec-soft);color:#B97400}
+  body.dark .chip.rec{color:var(--rec)}
+  .dot{width:7px;height:7px;border-radius:50%}
+  .dot.done{background:var(--done)}.dot.miss{background:var(--miss)}.dot.rec{background:var(--rec)}
+
+  /* ===== FAB ===== */
+  .fab{
+    position:absolute;bottom:26px;right:22px;width:58px;height:58px;border-radius:20px;
+    background:linear-gradient(135deg,var(--blue),var(--blue-deep));color:#fff;border:none;
+    font-size:28px;font-weight:300;cursor:pointer;box-shadow:0 12px 28px rgba(46,125,209,.45);
+    z-index:30;display:grid;place-items:center;transition:transform .12s;
+  }
+  .fab:active{transform:scale(.92)}
+
+  /* ===== Aula timeline ===== */
+  .section-title{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.5px;margin:6px 2px 2px;display:flex;align-items:center;gap:7px}
+  .lesson{
+    background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow);
+  }
+  .lnum{width:26px;height:26px;border-radius:8px;background:var(--blue-soft);color:var(--blue);
+    font-weight:800;font-size:13px;display:grid;place-items:center;flex:0 0 auto}
+  .linfo{flex:1;min-width:0}
+  .ldate{font-size:14px;font-weight:700;color:var(--ink)}
+  .llabel{font-size:12.5px;color:var(--muted);font-weight:600;margin-top:1px}
+  .lstatus{font-size:12px;font-weight:800;padding:5px 11px;border-radius:20px;flex:0 0 auto}
+  .lstatus.done{background:var(--done-soft);color:var(--done)}
+  .lstatus.miss{background:var(--miss-soft);color:var(--miss)}
+  .lstatus.warn{background:var(--rec-soft);color:#B97400}
+  body.dark .lstatus.warn{color:var(--rec)}
+  .lstatus.sched{background:var(--blue-soft);color:var(--blue)}
+  .lesson.sched{border-style:dashed;flex-direction:column;align-items:stretch;gap:7px}
+  .lesson.next{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-soft)}
+  .lhead{display:flex;align-items:center;gap:10px;width:100%}
+  .lesson.sched .schedacts{margin-top:0;width:100%;flex-wrap:nowrap;overflow-x:auto}
+  .lesson.sched .schedacts::-webkit-scrollbar{height:0}
+  .lesson.sched .schedacts .mini{flex:0 0 auto;white-space:nowrap}
+  .schedacts{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+  .schedacts .mini{padding:3px 7px;font-size:10.5px;border-radius:11px}
+  .mini.wa{color:#1b8a4a;border-color:#1b8a4a55}
+  .pc-tag.sched{background:var(--blue-soft);color:var(--blue)}
+  .ldel{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;opacity:.5}
+  .ldel:hover{opacity:1;color:var(--miss)}
+
+  .rec-item{
+    background:var(--card);border:1px dashed var(--rec);border-radius:12px;padding:11px 13px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .rec-item .lnum{background:var(--rec-soft);color:#B97400}
+  body.dark .rec-item .lnum{color:var(--rec)}
+  .rec-item .rdate{flex:1;font-size:14px;font-weight:700;color:var(--ink)}
+  .rbtn{background:var(--done);color:#fff;border:none;font-size:12px;font-weight:700;
+    padding:6px 12px;border-radius:20px;cursor:pointer}
+  .rwait{font-size:11px;font-weight:800;color:#B97400;background:var(--rec-soft);padding:5px 10px;border-radius:20px}
+  body.dark .rwait{color:var(--rec)}
+
+  /* ===== Vínculo aula <-> pagamento ===== */
+  .ltag{margin-top:5px;display:flex;flex-wrap:wrap;gap:5px}
+  .pkgtag{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:4px}
+  .pkgtag.none{background:var(--line);color:var(--muted)}
+  .pkgtag.plain{background:transparent;color:var(--muted);padding-left:0}
+  .pkg-c0{background:#E8F1FB;color:#2E7DD1}
+  .pkg-c1{background:#E6F6EC;color:#16A34A}
+  .pkg-c2{background:#FEF3E0;color:#B97400}
+  .pkg-c3{background:#F1E8FB;color:#8B3FD1}
+  .pkg-c4{background:#FBE8EF;color:#D13F7D}
+  .pkg-c5{background:#E0F5F2;color:#0E8C7D}
+  body.dark .pkg-c0{background:#16304B;color:#7FB6F0}
+  body.dark .pkg-c1{background:#10301F;color:#5BD08A}
+  body.dark .pkg-c2{background:#3A2C12;color:#F0B45B}
+  body.dark .pkg-c3{background:#2B1A3A;color:#C08BE6}
+  body.dark .pkg-c4{background:#3A1A28;color:#E68BB0}
+  body.dark .pkg-c5{background:#12302C;color:#5BD0C0}
+  .loose{font-size:12.5px;font-weight:700;color:#B97400;background:var(--rec-soft);border-radius:10px;padding:8px 11px}
+  body.dark .loose{color:var(--rec)}
+
+  /* ===== Código do aluno / inativo ===== */
+  .codebox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;box-shadow:var(--shadow)}
+  .cb-row{font-size:13px;font-weight:600;color:var(--muted)}
+  .cb-row b{color:var(--ink);font-size:16px;letter-spacing:.5px;font-weight:800}
+  .cb-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .mini{font-size:12px;font-weight:700;padding:7px 12px;border-radius:20px;border:1.5px solid var(--line);
+    background:var(--bg);color:var(--ink);cursor:pointer;font-family:inherit}
+  .mini:hover{border-color:var(--blue)}
+  .mini.danger{color:var(--miss);border-color:var(--miss-soft)}
+
+  /* ===== Configurações ===== */
+  .set-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 13px;
+    box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+  .set-line{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .set-line .lbl{font-size:14px;font-weight:700;color:var(--ink)}
+  .set-line .val,.set-card .val{font-size:13px;color:var(--muted);font-weight:600;line-height:1.4}
+  .set-card .gchip b{font-weight:800}
+  .badge-off{font-size:10px;font-weight:800;color:var(--muted);background:var(--line);
+    padding:2px 8px;border-radius:20px;vertical-align:middle;text-transform:uppercase;letter-spacing:.4px}
+  .student-card.inactive{opacity:.5}
+  .paychecks{display:flex;flex-direction:column;gap:8px;max-height:190px;overflow-y:auto;
+    border:1.5px solid var(--line);border-radius:12px;padding:10px;background:var(--bg)}
+  .paycheck{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;color:var(--ink)}
+  .paycheck input{width:18px;height:18px;accent-color:var(--blue);flex:0 0 auto}
+  .pc-date{flex:1;font-weight:700}
+  .pc-tag{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+  .pc-tag.done{background:var(--done-soft);color:var(--done)}
+  .pc-tag.miss{background:var(--miss-soft);color:var(--miss)}
+  .pc-tag.warn{background:var(--rec-soft);color:#B97400}
+  body.dark .pc-tag.warn{color:var(--rec)}
+  .pwarn{font-size:11px;font-weight:800;color:var(--miss);margin-top:3px}
+
+  /* ===== Banner aluno (somente leitura) ===== */
+  .ro-banner{background:var(--rec-soft);color:#B97400;border:1px solid var(--rec);border-radius:12px;
+    padding:10px 13px;font-size:13px;font-weight:700}
+  body.dark .ro-banner{color:var(--rec)}
+
+  /* ===== Botões ===== */
+  .btn{width:100%;padding:15px;border-radius:14px;border:none;font-size:15px;font-weight:800;
+    cursor:pointer;font-family:inherit;transition:transform .1s,opacity .15s}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:linear-gradient(135deg,var(--blue),var(--blue-deep));color:#fff}
+  .btn-wa{background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-ghost{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+  .btn-row{display:flex;gap:10px}.btn-row .btn{flex:1}
+
+  /* ===== Forms / Sheet ===== */
+  .sheet-bg{position:absolute;inset:0;background:rgba(8,18,30,.55);z-index:60;display:none;
+    align-items:flex-end;backdrop-filter:blur(2px)}
+  .sheet-bg.open{display:flex}
+  .sheet{background:var(--card);width:100%;border-radius:26px 26px 0 0;padding:22px 20px 28px;
+    max-height:88%;overflow-y:auto;animation:up .28s cubic-bezier(.2,.8,.2,1)}
+  @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .sheet h2{font-size:19px;font-weight:800;color:var(--ink);margin-bottom:4px}
+  .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .sheet-head h2{margin-bottom:0}
+  .closex{background:var(--bg);border:1.5px solid var(--line);color:var(--muted);width:34px;height:34px;
+    border-radius:50%;font-size:15px;font-weight:800;cursor:pointer;flex:0 0 auto}
+  .closex:hover{color:var(--ink)}
+  .sheet .hint{font-size:13px;color:var(--muted);margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px}
+  .req{color:var(--miss)}
+  .opt{color:var(--muted);font-weight:600}
+  .field input,.field select{width:100%;padding:13px 14px;border:1.5px solid var(--line);
+    border-radius:12px;font-size:15px;font-family:inherit;background:var(--bg);color:var(--ink);outline:none}
+  .field input:focus,.field select:focus{border-color:var(--blue)}
+  .seg{display:flex;gap:8px}
+  .seg button{flex:1;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);
+    font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;color:var(--muted)}
+  .seg button.sel{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
+  .seg button.sel-done{background:var(--done-soft);border-color:var(--done);color:var(--done)}
+  .seg button.sel-miss{background:var(--miss-soft);border-color:var(--miss);color:var(--miss)}
+  .seg button.sel-warn{background:var(--rec-soft);border-color:var(--rec);color:#B97400}
+  body.dark .seg button.sel-warn{color:var(--rec)}
+
+  /* ===== Resumo / preview WhatsApp ===== */
+  .preview{background:#0B141A;border-radius:16px;padding:18px;margin:6px 0 16px;position:relative}
+  .preview .bubble{background:#075E54;color:#E9EDEF;border-radius:12px 12px 12px 2px;padding:13px 14px;
+    font-size:13.5px;line-height:1.7;white-space:pre-wrap;font-family:inherit;max-width:90%}
+  .preview .time{font-size:10px;color:#8aa;text-align:right;margin-top:4px}
+
+  /* ===== Stats do aluno ===== */
+  .stats{display:flex;gap:10px}
+  .stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
+  .snum{font-size:24px;font-weight:800;color:var(--ink);line-height:1}
+  .slab{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.4px;margin-top:5px}
+  .startline{font-size:13px;font-weight:700;color:var(--muted);padding:2px 4px}
+  .startline b{color:var(--ink)}
+  .groups-sum{display:flex;flex-wrap:wrap;gap:7px}
+  .gsum{font-size:12px;font-weight:700;color:var(--ink);background:var(--blue-soft);
+    padding:5px 11px;border-radius:20px}
+  .gsum b{color:var(--blue)}
+
+  /* ===== Chips de grupo no form ===== */
+  .gchips{display:flex;flex-wrap:wrap;gap:8px}
+  .gchip{padding:9px 13px;border-radius:20px;border:1.5px solid var(--line);background:var(--bg);
+    font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;color:var(--muted)}
+  .gchip.sel{background:var(--blue-soft);border-color:var(--blue);color:var(--blue)}
+  .gchip.add{border-style:dashed;color:var(--blue)}
+
+  /* ===== Pagamentos ===== */
+  .pay-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+    display:flex;align-items:center;gap:10px;box-shadow:var(--shadow)}
+  .pay-item.pending{border-left:3px solid var(--rec)}
+  .pay-item.paid{border-left:3px solid var(--done)}
+  .pinfo{flex:1;min-width:0}
+  .pval{font-size:15px;font-weight:800;color:var(--ink)}
+  .pnote{font-size:12px;color:var(--muted);font-weight:600;margin-top:1px}
+  .ptoggle{font-size:12px;font-weight:800;padding:6px 12px;border-radius:20px;border:none;
+    cursor:pointer;background:var(--rec-soft);color:#B97400;flex:0 0 auto}
+  body.dark .ptoggle{color:var(--rec)}
+  .ptoggle.on{background:var(--done-soft);color:var(--done)}
+  .chip.pend{background:var(--rec-soft);color:#B97400}
+  body.dark .chip.pend{color:var(--rec)}
+
+  /* ===== Login ===== */
+  .login{flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 26px;
+    background:linear-gradient(160deg,var(--blue-deep),#103a5c 60%,var(--blue));color:#fff}
+  .login .logo{width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,.16);
+    display:grid;place-items:center;font-size:30px;margin-bottom:22px}
+  .login h1{font-size:28px;font-weight:800;letter-spacing:-.5px}
+  .login p{font-size:14px;opacity:.85;margin:6px 0 24px;font-weight:500}
+  .login .field input{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.2);color:#fff}
+  .login .field input::placeholder{color:rgba(255,255,255,.6)}
+  .login .field label{color:#fff}
+  .login .seg{margin-bottom:18px}
+  .login .seg button{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.22);color:#fff}
+  .login .seg button.sel{background:#fff;border-color:#fff;color:var(--blue-deep)}
+  .login .switch{text-align:center;margin-top:18px;font-size:14px;opacity:.9}
+  .login .switch b{cursor:pointer;text-decoration:underline}
+  .login .demo{margin-top:16px;text-align:center;font-size:12.5px;opacity:.85;line-height:1.7}
+  .login .demo b{color:#fff}
+  .err{background:rgba(220,38,38,.2);border:1px solid #DC2626;color:#fff;padding:10px 13px;
+    border-radius:10px;font-size:13px;font-weight:600;margin-bottom:14px;display:none}
+  .err.show{display:block}
+
+  /* ===== Empty ===== */
+  .empty{text-align:center;padding:50px 24px;color:var(--muted)}
+  .empty .ico{font-size:46px;margin-bottom:12px}
+  .empty p{font-size:14px;font-weight:600;line-height:1.5}
+
+  /* ===== Toast ===== */
+  .toast{position:absolute;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:var(--bg);padding:12px 20px;border-radius:30px;font-size:13px;
+    font-weight:700;opacity:0;transition:.3s;z-index:90;pointer-events:none;white-space:nowrap;max-width:88%}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .sidecap{text-align:center;color:#cdd6e0;max-width:230px;font-size:13px;line-height:1.6}
+  .sidecap b{color:#fff}
+  .themebtn{position:fixed;top:20px;right:20px;background:#ffffff22;border:1px solid #ffffff33;
+    color:#fff;padding:9px 14px;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;
+    font-family:inherit;backdrop-filter:blur(6px)}
+
+  /* ===== Navbar (abas do aluno) ===== */
+  #v-student{overflow:hidden}
+  .tabscroll{flex:1;overflow-y:auto;padding:18px 18px 18px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+  .tabscroll::-webkit-scrollbar{width:0}
+  .tabbar{flex:0 0 auto;display:flex;background:var(--card);border-top:1px solid var(--line)}
+  .tabbar button{flex:1;background:none;border:none;cursor:pointer;font-family:inherit;
+    padding:9px 4px 11px;display:flex;flex-direction:column;align-items:center;gap:3px;
+    font-size:10.5px;font-weight:700;color:var(--muted)}
+  .tabbar button .tbi{font-size:19px;line-height:1}
+  .tabbar button.active{color:var(--blue)}
+  /* ===== Abas da home ===== */
+  .hometabs{display:flex;gap:8px;margin-top:14px}
+  .hometabs button{flex:1;background:rgba(255,255,255,.16);border:none;color:#fff;cursor:pointer;
+    font-family:inherit;font-weight:700;font-size:13px;padding:9px;border-radius:12px}
+  .hometabs button.active{background:#fff;color:var(--blue-deep)}
+  /* ===== Agenda do dia ===== */
+  .daynav{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .daylabel{font-size:15px;font-weight:700;color:var(--ink)}
+  .daylabel b{color:var(--blue);text-transform:uppercase}
+  .agenda-item{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:8px 10px;display:flex;flex-direction:column;gap:7px;box-shadow:var(--shadow);cursor:pointer}
+  .ag-head{display:flex;align-items:flex-start;gap:9px;width:100%}
+  .ag-time{font-size:13px;font-weight:800;color:var(--blue);background:var(--blue-soft);
+    padding:5px 7px;border-radius:8px;flex:0 0 auto;min-width:48px;text-align:center}
+  .ag-info{flex:1;min-width:0}
+  .ag-name{font-size:14px;font-weight:800;color:var(--ink);line-height:1.2}
+  .ag-sub{font-size:11px;color:var(--muted);font-weight:600;margin-top:0}
+  .agenda-item .schedacts{margin-top:0;width:100%;flex-wrap:nowrap;overflow-x:auto}
+  .agenda-item .schedacts::-webkit-scrollbar{height:0}
+  .agenda-item .schedacts .mini{flex:0 0 auto;white-space:nowrap}
+  /* ===== Cabeçalho do pacote ===== */
+  .pkg-head{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:14px 15px;box-shadow:var(--shadow)}
+  .pkg-head-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .pkg-prog{height:8px;background:var(--line);border-radius:20px;overflow:hidden;margin:11px 0 7px}
+  .pkg-bar{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-deep));border-radius:20px}
+  .pkg-meta{font-size:12.5px;font-weight:700;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<button class="themebtn" onclick="toggleTheme()">🌙 Tema</button>
+
+<div class="phone">
+  <div class="island"></div>
+  <div class="screen">
+    <div class="statusbar">
+      <span id="clock">9:18</span>
+      <span class="icons">●●● 📶 🔋</span>
+    </div>
+    <div class="app">
+
+      <!-- LOGIN -->
+      <div class="view active" id="v-login">
+        <div class="login">
+          <div class="logo">🏋️</div>
+          <h1 id="login-title">Bom treino!</h1>
+          <p id="login-sub">Entre pra acompanhar seus alunos.</p>
+          <div class="err" id="login-err"></div>
+
+          <div class="seg" id="role-seg">
+            <button data-r="personal" class="sel" onclick="pickRole('personal')">🏋️ Sou personal</button>
+            <button data-r="aluno" onclick="pickRole('aluno')">🧍 Sou aluno</button>
+          </div>
+
+          <div id="personal-fields">
+            <div class="field">
+              <label>Usuário <span class="req">*</span></label>
+              <input id="li-user" placeholder="ex: joao" autocapitalize="none">
+            </div>
+            <div class="field">
+              <label>Senha <span class="req">*</span></label>
+              <input id="li-pin" type="password" placeholder="••••">
+            </div>
+            <div class="field" id="li-name-field" style="display:none">
+              <label>Seu nome <span class="req">*</span></label>
+              <input id="li-name" placeholder="ex: João Personal">
+            </div>
+          </div>
+
+          <div class="field" id="li-code-field" style="display:none">
+            <label>Código do aluno <span class="req">*</span></label>
+            <input id="li-code" placeholder="ex: ANA123" autocapitalize="characters">
+          </div>
+
+          <button class="btn btn-primary" id="login-btn" onclick="doAuth()">Entrar</button>
+          <div class="switch" id="personal-switch">
+            <span id="switch-text">Não tem conta?</span> <b onclick="toggleAuthMode()" id="switch-link">Criar agora</b>
+          </div>
+          <div class="demo">
+            <b>Conta demo:</b> personal <b>demo</b> / senha <b>1234</b><br>
+            aluno (só leitura) → código <b>ANA123</b> ou <b>BRU456</b>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOME -->
+      <div class="view" id="v-home">
+        <div class="topbar curve">
+          <div class="topbar-row">
+            <div>
+              <h1 id="home-greet">Agenda</h1>
+              <div class="sub" id="home-name">—</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="iconbtn" id="theme-btn" onclick="toggleTheme()" title="Tema">🌙</button>
+              <button class="iconbtn" onclick="openSettings()" title="Configurações">⚙️</button>
+            </div>
+          </div>
+          <div class="hometabs" id="home-tabs">
+            <button data-htab="agenda" class="active" onclick="setHomeTab('agenda')">🗓 Agenda</button>
+            <button data-htab="alunos" onclick="setHomeTab('alunos')">🧍 Alunos</button>
+          </div>
+        </div>
+        <div class="body" id="home-body"></div>
+        <button class="fab" id="home-fab" onclick="openStudentSheet()">+</button>
+      </div>
+
+      <!-- ALUNO -->
+      <div class="view" id="v-student">
+        <div class="topbar">
+          <button class="back" id="st-back" onclick="go('home')">‹ Alunos</button>
+          <div class="topbar-row">
+            <div>
+              <h1 id="st-name">—</h1>
+              <div class="sub" id="st-value">—</div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="iconbtn" id="st-theme" onclick="toggleTheme()" title="Tema">🌙</button>
+              <button class="iconbtn" id="st-edit" onclick="editStudent()" title="Editar">✎</button>
+              <button class="iconbtn" id="st-logout" onclick="logout()" title="Sair" style="display:none">⏻</button>
+            </div>
+          </div>
+        </div>
+        <div class="tabscroll" id="student-detail"></div>
+        <div class="tabbar" id="student-tabs">
+          <button data-tab="pacote" class="active" onclick="setStudentTab('pacote')"><span class="tbi">📦</span>Pacote</button>
+          <button data-tab="hist" onclick="setStudentTab('hist')"><span class="tbi">🕑</span>Histórico</button>
+          <button data-tab="dash" onclick="setStudentTab('dash')"><span class="tbi">📊</span>Dashboard</button>
+          <button data-tab="pag" onclick="setStudentTab('pag')"><span class="tbi">💰</span>Pagamentos</button>
+        </div>
+      </div>
+
+      <!-- CONFIGURAÇÕES -->
+      <div class="view" id="v-settings">
+        <div class="topbar">
+          <button class="back" onclick="go('home')">‹ Início</button>
+          <div class="topbar-row">
+            <div>
+              <h1>Configurações</h1>
+              <div class="sub" id="set-sub">—</div>
+            </div>
+          </div>
+        </div>
+        <div class="body" id="settings-body"></div>
+      </div>
+
+      <!-- SHEET aluno -->
+      <div class="sheet-bg" id="sheet-student">
+        <div class="sheet">
+          <h2 id="ss-title">Novo aluno</h2>
+          <div class="hint">Os campos com <span class="req">*</span> são obrigatórios.</div>
+          <div class="field"><label>Nome <span class="req">*</span></label>
+            <input id="ss-name" placeholder="Nome do aluno"></div>
+          <div class="field"><label>Foco principal <span class="opt">(opcional)</span></label>
+            <input id="ss-focus" placeholder="ex: emagrecimento, hipertrofia, reabilitação..."></div>
+          <div class="field"><label>Valor por pacote <span class="opt">(opcional)</span></label>
+            <input id="ss-value" inputmode="numeric" placeholder="ex: 200,00" oninput="maskMoney(this)"></div>
+          <div class="field"><label>WhatsApp <span class="opt">(opcional, com DDD)</span></label>
+            <input id="ss-phone" inputmode="tel" placeholder="ex: (51) 9.9239-0760" oninput="maskPhone(this)"></div>
+          <div class="field"><label>Data de início <span class="opt">(quando começou a treinar)</span></label>
+            <input id="ss-start" type="date"></div>
+          <div class="field"><label>Dias da semana <span class="opt">(dias fixos das aulas)</span></label>
+            <div class="gchips" id="ss-weekdays"></div></div>
+          <div class="field"><label>Horário <span class="opt">(das aulas)</span></label>
+            <input id="ss-time" type="time"></div>
+          <div class="field"><label>Código de acesso <span class="opt">(o aluno usa pra ver — vazio gera automático)</span></label>
+            <div style="display:flex;gap:8px">
+              <input id="ss-code" placeholder="ex: ANA123" autocapitalize="characters" style="text-transform:uppercase">
+              <button type="button" class="mini" onclick="genCodeInto()" style="white-space:nowrap">Gerar</button>
+            </div></div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" onclick="closeSheet('sheet-student')">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveStudent()">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHEET aula -->
+      <div class="sheet-bg" id="sheet-lesson">
+        <div class="sheet">
+          <h2>Nova aula</h2>
+          <div class="hint">Os campos com <span class="req">*</span> são obrigatórios.</div>
+          <div class="field"><label>Data <span class="req">*</span></label>
+            <input id="sl-date" type="date"></div>
+          <div class="field"><label>Status <span class="req">*</span></label>
+            <div class="seg" id="sl-seg">
+              <button data-st="done" class="sel-done" onclick="pickStatus('done')">✓ Fez</button>
+              <button data-st="miss" onclick="pickStatus('miss')">✕ Faltou</button>
+              <button data-st="warn" onclick="pickStatus('warn')">⚠ Avisou</button>
+            </div>
+            <div class="hint" id="sl-status-hint" style="margin:8px 0 0"></div>
+          </div>
+          <div class="field" id="sl-label-field"><label>Grupos musculares <span class="opt">(pode marcar vários)</span></label>
+            <div class="gchips" id="sl-groups"></div></div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" onclick="closeSheet('sheet-lesson')">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveLesson()">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHEET resumo -->
+      <div class="sheet-bg" id="sheet-summary">
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2>Resumo pra enviar</h2>
+            <button class="closex" onclick="closeSheet('sheet-summary')">✕</button>
+          </div>
+          <div class="hint">É assim que vai chegar no WhatsApp do aluno.</div>
+          <div class="seg" id="sm-seg" style="margin-bottom:14px">
+            <button data-m="std" class="sel" onclick="setSummaryModel('std')">Padrão</button>
+            <button data-m="coach" onclick="setSummaryModel('coach')">Coach</button>
+          </div>
+          <div class="preview">
+            <div class="bubble" id="summary-text"></div>
+            <div class="time">9:18 ✓✓</div>
+          </div>
+          <button class="btn btn-wa" id="wa-btn" onclick="sendWhatsApp()">
+            <span style="font-size:18px">🟢</span> Enviar no WhatsApp
+          </button>
+          <div style="height:10px"></div>
+          <button class="btn btn-ghost" onclick="copySummary()">Copiar texto</button>
+        </div>
+      </div>
+
+      <!-- SHEET pagamento -->
+      <div class="sheet-bg" id="sheet-pay">
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2 id="pay-title">Registrar pagamento</h2>
+            <button class="closex" onclick="closeSheet('sheet-pay')">✕</button>
+          </div>
+          <div class="hint">Marque quando recebeu e quais aulas esse valor cobre.</div>
+          <div class="field"><label>Valor <span class="req">*</span></label>
+            <input id="pa-value" inputmode="numeric" placeholder="ex: 200,00" oninput="maskMoney(this)"></div>
+          <div class="field"><label>Data <span class="req">*</span></label>
+            <input id="pa-date" type="date"></div>
+          <div class="field"><label>Referência <span class="opt">(opcional)</span></label>
+            <input id="pa-note" placeholder="ex: pacote 8 aulas, junho..."></div>
+          <div class="field"><label>Aulas que esse pagamento cobre <span class="opt">(o pacote)</span></label>
+            <div class="paychecks" id="pa-classes"></div>
+            <div class="hint" style="margin:7px 0 0">Marque as aulas do pacote. Até 2 recuperações por pacote.</div></div>
+          <div class="field"><label>Status <span class="req">*</span></label>
+            <div class="seg" id="pa-seg">
+              <button data-st="paid" class="sel-done" onclick="pickPayStatus('paid')">✓ Pago</button>
+              <button data-st="pending" onclick="pickPayStatus('pending')">Pendente</button>
+            </div></div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" onclick="closeSheet('sheet-pay')">Cancelar</button>
+            <button class="btn btn-primary" onclick="savePayment()">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHEET remarcar -->
+      <div class="sheet-bg" id="sheet-resched">
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2>Remarcar aula</h2>
+            <button class="closex" onclick="closeSheet('sheet-resched')">✕</button>
+          </div>
+          <div class="hint">Escolha a nova data/horário. Se bater com outro aluno, o app avisa.</div>
+          <div class="field"><label>Nova data <span class="req">*</span></label>
+            <input id="rs-date" type="date" oninput="checkReschedConflict()"></div>
+          <div class="field"><label>Horário <span class="opt">(opcional)</span></label>
+            <input id="rs-time" type="time" oninput="checkReschedConflict()"></div>
+          <div class="hint" id="rs-conflict" style="margin:0 0 12px;color:var(--miss);font-weight:700;display:none"></div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" onclick="closeSheet('sheet-resched')">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveReschedule()">Confirmar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHEET conflito de remarcação -->
+      <div class="sheet-bg" id="sheet-conflict">
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2>Conflito de horário</h2>
+            <button class="closex" onclick="closeSheet('sheet-conflict')">✕</button>
+          </div>
+          <div class="hint" id="cf-msg"></div>
+          <div id="cf-choices">
+            <button class="btn btn-ghost" onclick="conflictKeepBoth()" style="margin-bottom:8px">👥 Marcar os dois no mesmo horário</button>
+            <button class="btn btn-ghost" onclick="showMoveOther()" style="margin-bottom:8px">🔀 Mover <span id="cf-other-name">o outro</span> pra outro horário</button>
+            <button class="btn btn-ghost" onclick="closeSheet('sheet-conflict')">Cancelar</button>
+          </div>
+          <div id="cf-move" style="display:none">
+            <div class="field"><label>Novo horário pra <span id="cf-other-name2">o outro</span> <span class="req">*</span></label>
+              <input id="cf-other-time" type="time" oninput="checkMoveConflict()"></div>
+            <div class="hint" id="cf-move-warn" style="color:var(--miss);font-weight:700;display:none;margin:0 0 12px"></div>
+            <div class="btn-row">
+              <button class="btn btn-ghost" onclick="hideMoveOther()">‹ Voltar</button>
+              <button class="btn btn-primary" onclick="confirmMoveOther()">Confirmar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHEET recuperar aula -->
+      <div class="sheet-bg" id="sheet-recover">
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2>Recuperar aula</h2>
+            <button class="closex" onclick="closeSheet('sheet-recover')">✕</button>
+          </div>
+          <div class="hint" id="rc-hint">Escolha o dia em que a aula foi recuperada.</div>
+          <div class="field"><label>Recuperada em <span class="req">*</span></label>
+            <input id="rc-date" type="date"></div>
+          <div class="field"><label>Grupos musculares <span class="opt">(pode marcar vários)</span></label>
+            <div class="gchips" id="rc-groups"></div></div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" onclick="closeSheet('sheet-recover')">Cancelar</button>
+            <button class="btn btn-primary" onclick="saveRecover()">Confirmar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHEET trocar senha -->
+      <div class="sheet-bg" id="sheet-pass">
+        <div class="sheet">
+          <div class="sheet-head">
+            <h2>Trocar senha</h2>
+            <button class="closex" onclick="closeSheet('sheet-pass')">✕</button>
+          </div>
+          <div class="hint">Digite a senha atual e escolha a nova.</div>
+          <div class="field"><label>Senha atual <span class="req">*</span></label>
+            <input id="pw-cur" type="password" placeholder="••••"></div>
+          <div class="field"><label>Nova senha <span class="req">*</span></label>
+            <input id="pw-new" type="password" placeholder="nova senha"></div>
+          <div class="field"><label>Confirmar nova senha <span class="req">*</span></label>
+            <input id="pw-new2" type="password" placeholder="repita a nova senha"></div>
+          <div class="btn-row">
+            <button class="btn btn-ghost" onclick="closeSheet('sheet-pass')">Cancelar</button>
+            <button class="btn btn-primary" onclick="savePass()">Salvar</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="toast" id="toast"></div>
+    </div>
+  </div>
+</div>
+
+<div class="sidecap">
+  <b>Protótipo 🅰️</b> — login é simulado e os dados ficam só neste navegador.<br><br>
+  Pra valer (login real + dados no celular do personal), vira <b>Supabase</b>.
+</div>
+
+<script>
+/* ============ Estado ============ */
+const DB_KEY='personalApp_v1', SESS_KEY='personalApp_sess', ROLE_KEY='personalApp_role', CODE_KEY='personalApp_code', SUMMARY_KEY='personalApp_summary';
+let db = JSON.parse(localStorage.getItem(DB_KEY) || '{"users":{}}');
+let session = localStorage.getItem(SESS_KEY) || null;
+const DEFAULT_GROUPS=['Perna','Peito','Costas','Ombro','Bíceps','Tríceps','Abdômen','Glúteo','Cardio','Full Body'];
+let authMode='login', loginRole='personal', curStudent=null, lessonStatus='done', selectedGroups=[], selectedWeekdays=[], payStatus='paid', readonly=false, studentTab='pacote', homeTab='agenda', agendaDate='';
+const WD=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+
+const save=()=>localStorage.setItem(DB_KEY,JSON.stringify(db));
+const $=id=>document.getElementById(id);
+const me=()=>db.users[session];
+const canEdit=()=>!readonly;
+function uid(){return 'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+/* Texto explicativo de cada status de aula */
+const STATUS_HINT={
+  done:'Aluno compareceu.',
+  miss:'Faltou sem avisar — perdeu o dia, sem direito a recuperar.',
+  warn:'Avisou com antecedência — entra na fila de recuperação (até 2 por pacote).'
+};
+function groupText(c){return (c.groups&&c.groups.length)?c.groups.map(esc).join(', '):'';}
+
+/* ============ Clock ============ */
+function tick(){const d=new Date();$('clock').textContent=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0');}
+tick();setInterval(tick,15000);
+
+/* ============ Tema ============ */
+const THEME_KEY='personalApp_theme';
+function applyTheme(t){
+  const dark = t==='dark';
+  document.body.classList.toggle('dark', dark);
+  const ico=dark?'☀️':'🌙';
+  if($('theme-btn')) $('theme-btn').textContent=ico;
+  if($('st-theme')) $('st-theme').textContent=ico;
+}
+function toggleTheme(){
+  const dark = !document.body.classList.contains('dark');
+  localStorage.setItem(THEME_KEY, dark?'dark':'light');
+  applyTheme(dark?'dark':'light');
+}
+applyTheme(localStorage.getItem(THEME_KEY) || 'light');
+
+/* ============ Navegação ============ */
+function go(v){document.querySelectorAll('.view').forEach(e=>e.classList.remove('active'));$('v-'+v).classList.add('active');}
+
+/* ============ Papéis / controles ============ */
+function applyRoleUI(){
+  const ed=canEdit();
+  if($('student-fab')) $('student-fab').style.display = ed?'grid':'none';
+  if($('st-edit'))     $('st-edit').style.display     = ed?'grid':'none';
+  if($('st-back'))     $('st-back').style.display     = ed?'flex':'none';
+  if($('st-logout'))   $('st-logout').style.display   = ed?'none':'grid';
+}
+
+/* ============ Auth (mock) ============ */
+function pickRole(r){
+  loginRole=r;
+  document.querySelectorAll('#role-seg button').forEach(b=>{b.className='';if(b.dataset.r===r)b.className='sel';});
+  const al=r==='aluno';
+  $('personal-fields').style.display=al?'none':'block';
+  $('personal-switch').style.display=al?'none':'block';
+  $('li-code-field').style.display=al?'block':'none';
+  $('login-btn').textContent=al?'Ver meus treinos':(authMode==='signup'?'Criar conta':'Entrar');
+  $('login-title').textContent=al?'Área do aluno':(authMode==='signup'?'Criar conta':'Bom treino!');
+  $('login-sub').textContent=al?'Veja seus treinos e pagamentos.':(authMode==='signup'?'Leva 10 segundos.':'Entre pra acompanhar seus alunos.');
+  $('login-err').classList.remove('show');
+}
+function toggleAuthMode(){
+  authMode = authMode==='login' ? 'signup':'login';
+  const su=authMode==='signup';
+  $('login-title').textContent = su?'Criar conta':'Bom treino!';
+  $('login-sub').textContent = su?'Leva 10 segundos.':'Entre pra acompanhar seus alunos.';
+  $('login-btn').textContent = su?'Criar conta':'Entrar';
+  $('li-name-field').style.display = su?'block':'none';
+  $('switch-text').textContent = su?'Já tem conta?':'Não tem conta?';
+  $('switch-link').textContent = su?'Entrar':'Criar agora';
+  $('login-err').classList.remove('show');
+}
+function authErr(m){const e=$('login-err');e.textContent=m;e.classList.add('show');}
+function findByCode(code){
+  const c=(code||'').trim().toLowerCase();
+  if(!c) return null;
+  for(const u in db.users){
+    const arr=db.users[u].students||[];
+    for(let i=0;i<arr.length;i++){ if((arr[i].code||'').toLowerCase()===c) return {user:u,idx:i}; }
+  }
+  return null;
+}
+function doAuth(){
+  if(loginRole==='aluno'){
+    const f=findByCode($('li-code').value);
+    if(!f) return authErr('Código não encontrado. Confere com seu personal.');
+    if(db.users[f.user].students[f.idx].inactive) return authErr('Seu acesso está inativo. Fale com seu personal.');
+    enterAluno(f.user,f.idx);
+    return;
+  }
+  const u=$('li-user').value.trim().toLowerCase(), p=$('li-pin').value.trim();
+  if(!u||!p) return authErr('Preenche usuário e senha.');
+  if(authMode==='signup'){
+    const n=$('li-name').value.trim();
+    if(!n) return authErr('Coloca seu nome.');
+    if(db.users[u]) return authErr('Esse usuário já existe.');
+    db.users[u]={pin:p,name:n,groups:[...DEFAULT_GROUPS],students:[]};save();
+  } else {
+    if(!db.users[u]) return authErr('Usuário não encontrado.');
+    if(db.users[u].pin!==p) return authErr('Senha incorreta.');
+  }
+  session=u;readonly=false;localStorage.setItem(SESS_KEY,u);localStorage.setItem(ROLE_KEY,'personal');
+  enterApp();
+}
+function logout(){
+  session=null;readonly=false;
+  localStorage.removeItem(SESS_KEY);localStorage.removeItem(ROLE_KEY);localStorage.removeItem(CODE_KEY);
+  applyRoleUI();
+  authMode='login';loginRole='personal';pickRole('personal');
+  $('li-user').value='';$('li-pin').value='';$('li-code').value='';
+  go('login');
+}
+function enterApp(){
+  readonly=false;
+  if(!me().groups) me().groups=[...DEFAULT_GROUPS];
+  save();applyRoleUI();
+  $('home-name').textContent=me().name;
+  agendaDate=fmtISO(new Date());homeTab='agenda';
+  renderHome();go('home');
+}
+function enterAluno(user,idx){
+  session=user;readonly=true;curStudent=idx;studentTab='pacote';
+  localStorage.setItem(SESS_KEY,user);
+  localStorage.setItem(ROLE_KEY,'aluno');
+  localStorage.setItem(CODE_KEY,db.users[user].students[idx].code||'');
+  applyRoleUI();
+  renderStudent();go('student');
+}
+
+/* ============ Alunos ============ */
+let editingStudent=null;
+function genCode(){
+  const taken=new Set();
+  for(const u in db.users)(db.users[u].students||[]).forEach(s=>{if(s.code)taken.add(s.code.toUpperCase());});
+  let code;
+  do{ code='AL'+Math.random().toString(36).slice(2,6).toUpperCase(); }while(taken.has(code));
+  return code;
+}
+function genCodeInto(){$('ss-code').value=genCode();}
+function renderWeekdayChips(){
+  $('ss-weekdays').innerHTML=WD.map((d,i)=>
+    `<button type="button" class="gchip${selectedWeekdays.includes(i)?' sel':''}" onclick="toggleWeekday(${i})">${d}</button>`
+  ).join('');
+}
+function toggleWeekday(i){const k=selectedWeekdays.indexOf(i);
+  if(k>=0)selectedWeekdays.splice(k,1);else selectedWeekdays.push(i);
+  selectedWeekdays.sort((a,b)=>a-b);renderWeekdayChips();}
+function codeTaken(code,except){
+  const c=(code||'').trim().toUpperCase();if(!c)return false;
+  for(const u in db.users)for(const st of (db.users[u].students||[]))
+    if(st!==except && (st.code||'').toUpperCase()===c) return true;
+  return false;
+}
+function copyCode(){const s=me().students[curStudent];
+  if(s.code)navigator.clipboard.writeText(s.code).then(()=>toast('Código copiado ✓'),()=>toast('Não consegui copiar'));}
+function newCode(){const s=me().students[curStudent];s.code=genCode();save();renderStudent();toast('Novo código: '+s.code);}
+function removeStudentCode(){const s=me().students[curStudent];if(!s.code)return;
+  if(!confirm('Remover o código? O aluno não vai mais conseguir ver os treinos.'))return;
+  s.code='';save();renderStudent();toast('Código removido');}
+function toggleInactive(){const s=me().students[curStudent];s.inactive=!s.inactive;save();renderStudent();
+  toast(s.inactive?'Aluno inativado':'Aluno reativado ✓');}
+function deleteStudent(){
+  const s=me().students[curStudent];
+  if(!confirm(`Excluir ${s.name}?\n\nIsso apaga TODAS as aulas, pacotes e pagamentos desse aluno. Não dá pra desfazer.`)) return;
+  me().students.splice(curStudent,1);
+  save();curStudent=null;homeTab='alunos';
+  renderHome();go('home');toast('Aluno excluído');
+}
+function openStudentSheet(){editingStudent=null;$('ss-title').textContent='Novo aluno';
+  $('ss-name').value='';$('ss-focus').value='';$('ss-value').value='';$('ss-phone').value='';
+  $('ss-start').value='';$('ss-time').value='';$('ss-code').value='';
+  selectedWeekdays=[];renderWeekdayChips();openSheet('sheet-student');}
+function editStudent(){const s=me().students[curStudent];editingStudent=curStudent;
+  $('ss-title').textContent='Editar aluno';$('ss-name').value=s.name;
+  $('ss-focus').value=s.focus||'';$('ss-value').value=s.value||'';$('ss-phone').value=s.phone||'';maskPhone($('ss-phone'));
+  $('ss-start').value=s.start||'';$('ss-time').value=s.time||'';$('ss-code').value=s.code||'';
+  selectedWeekdays=(s.weekdays||[]).slice();renderWeekdayChips();openSheet('sheet-student');}
+function saveStudent(){
+  const name=$('ss-name').value.trim();
+  if(!name) return toast('Nome é obrigatório');
+  const code=($('ss-code').value||'').trim().toUpperCase();
+  const cur=editingStudent!==null?me().students[editingStudent]:null;
+  if(code && codeTaken(code,cur)) return toast('Esse código já está em uso');
+  const data={name,focus:$('ss-focus').value.trim(),value:$('ss-value').value.trim(),
+    phone:$('ss-phone').value.replace(/\D/g,''),start:$('ss-start').value,
+    time:$('ss-time').value,weekdays:selectedWeekdays.slice()};
+  if(editingStudent!==null){Object.assign(cur,data);cur.code=code;}
+  else{
+    const st={...data,code:code||genCode(),inactive:false,classes:[],payments:[]};
+    me().students.push(st);
+    if(st.weekdays&&st.weekdays.length) generatePackage(st);
+  }
+  save();closeSheet('sheet-student');
+  if(editingStudent!==null){renderStudent();}else{renderHome();}
+  toast('Salvo ✓');
+}
+function renderHome(){
+  document.querySelectorAll('#home-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.htab===homeTab));
+  $('home-greet').textContent = homeTab==='agenda'?'Agenda':'Seus alunos';
+  $('home-fab').style.display = homeTab==='alunos'?'grid':'none';
+  if(homeTab==='alunos') renderStudentsList(); else renderAgenda();
+}
+function setHomeTab(t){homeTab=t;renderHome();}
+
+/* ============ Configurações ============ */
+function openSettings(){renderSettings();go('settings');}
+function renderSettings(){
+  const u=me();
+  $('set-sub').textContent=u.name;
+  let h='';
+  // Conta
+  h+=`<div class="section-title">👤 Conta</div>`;
+  h+=`<div class="set-card">
+    <div class="set-line"><span class="lbl">Nome</span><span class="val">${esc(u.name)}</span></div>
+    <div class="set-line"><span class="lbl">Usuário</span><span class="val">${esc(session)}</span></div>
+    <div class="cb-actions"><button class="mini" onclick="editName()">Editar nome</button>
+      <button class="mini" onclick="openPassSheet()">Trocar senha</button></div>
+  </div>`;
+  // Grupos musculares
+  h+=`<div class="section-title">💪 Grupos musculares</div>`;
+  h+=`<div class="set-card">
+    <div class="val">Aparecem quando você marca uma aula como feita.</div>
+    <div class="gchips">${u.groups.map((g,i)=>`<span class="gchip" style="cursor:default">${esc(g)} <b onclick="removeGroupAt(${i})" style="color:var(--miss);cursor:pointer;margin-left:4px">✕</b></span>`).join('')}
+      <button class="gchip add" onclick="addGroupSettings()">+ Novo</button></div>
+  </div>`;
+  // Dados
+  h+=`<div class="section-title">🗄️ Dados</div>`;
+  h+=`<div class="set-card">
+    <div class="val">Protótipo — os dados ficam só neste navegador.</div>
+    <button class="mini danger" onclick="resetDemo()" style="align-self:flex-start">Resetar dados demo</button>
+  </div>`;
+  // Sair
+  h+=`<button class="btn btn-ghost" onclick="logout()" style="margin-top:16px;color:var(--miss)">⏻ Sair</button>`;
+  $('settings-body').innerHTML=h;
+}
+function editName(){
+  const n=prompt('Seu nome:',me().name);
+  if(n&&n.trim()){me().name=n.trim();save();$('home-name').textContent=me().name;renderSettings();toast('Nome atualizado ✓');}
+}
+function removeGroupAt(i){
+  const g=me().groups[i];
+  if(!confirm(`Remover "${g}" da lista de grupos?`))return;
+  me().groups.splice(i,1);save();renderSettings();toast('Grupo removido');
+}
+function addGroupSettings(){
+  const n=prompt('Nome do novo grupo muscular:');
+  if(!n||!n.trim())return;
+  const v=n.trim();
+  if(me().groups.includes(v))return toast('Esse grupo já existe');
+  me().groups.push(v);save();renderSettings();toast('Grupo adicionado ✓');
+}
+function resetDemo(){
+  if(!confirm('Resetar TODOS os dados deste navegador e recriar a conta demo? Não dá pra desfazer.'))return;
+  localStorage.clear();location.reload();
+}
+function openPassSheet(){$('pw-cur').value='';$('pw-new').value='';$('pw-new2').value='';openSheet('sheet-pass');}
+function savePass(){
+  const cur=$('pw-cur').value.trim(), nw=$('pw-new').value.trim(), nw2=$('pw-new2').value.trim();
+  if(!cur||!nw||!nw2) return toast('Preencha todos os campos');
+  if(cur!==me().pin) return toast('Senha atual incorreta');
+  if(nw.length<4) return toast('A nova senha precisa de ao menos 4 caracteres');
+  if(nw!==nw2) return toast('A confirmação não bate');
+  if(nw===cur) return toast('A nova senha é igual à atual');
+  me().pin=nw;save();closeSheet('sheet-pass');toast('Senha alterada ✓');
+}
+function shiftDay(n){agendaDate=addDays(agendaDate,n);renderAgenda();}
+function goToday(){agendaDate=fmtISO(new Date());renderAgenda();}
+function classesOnDate(dateISO){
+  const res=[];
+  me().students.forEach((s,si)=>{
+    if(s.inactive)return;
+    s.classes.forEach(c=>{if(c.date===dateISO)res.push({s,si,c});});
+  });
+  res.sort((a,b)=>(a.c.time||a.s.time||'~').localeCompare(b.c.time||b.s.time||'~'));
+  return res;
+}
+function renderAgenda(){
+  const list=classesOnDate(agendaDate);
+  const today=fmtISO(new Date());
+  let h=`<div class="daynav">
+    <button class="mini" onclick="shiftDay(-1)">‹ Ant</button>
+    <div class="daylabel"><b>${WD[weekdayOf(agendaDate)]}</b> ${fmtDate(agendaDate)}</div>
+    <button class="mini" onclick="shiftDay(1)">Próx ›</button>
+  </div>`;
+  if(agendaDate!==today) h+=`<button class="mini" onclick="goToday()" style="align-self:center">↺ Voltar pra hoje</button>`;
+  if(!list.length){
+    h+=`<div class="empty"><div class="ico">🗓️</div><p>Nenhuma aula nesse dia.</p></div>`;
+  } else {
+    const ed=canEdit();
+    h+=list.map(({s,si,c})=>{
+      const t=c.time||s.time||'--:--';
+      let badge,bcls;
+      if(c.status==='sched'){badge='Agendada';bcls='sched';}
+      else if(c.status==='done'){badge='Fez';bcls='done';}
+      else if(c.status==='miss'){badge='Faltou';bcls='miss';}
+      else{badge=c.recovered?'Recuperada':'Avisou';bcls='warn';}
+      const sub=(c.status==='done'&&groupText(c))?groupText(c):(s.focus?esc(s.focus):'');
+      let acts='';
+      if(ed){
+        let btns='';
+        if(c.status==='sched'){
+          btns+=`<button class="mini" onclick="event.stopPropagation();agendaMark(${si},'${c.id}','done')">✓ Feito</button>
+            <button class="mini" onclick="event.stopPropagation();agendaMark(${si},'${c.id}','miss')">✕ Falta</button>
+            <button class="mini" onclick="event.stopPropagation();agendaReschedule(${si},'${c.id}')">🗓 Remarcar</button>`;
+        }
+        btns+=`<button class="mini wa" onclick="event.stopPropagation();agendaResumo(${si})">🟢 Resumo</button>`;
+        acts=`<div class="schedacts">${btns}</div>`;
+      }
+      return `<div class="agenda-item" onclick="openStudent(${si})">
+        <div class="ag-head">
+          <div class="ag-time">${esc(t)}</div>
+          <div class="ag-info"><div class="ag-name">${esc(s.name)}${c.resched?' <span class="badge-off">remarcada</span>':''}</div>
+            ${sub?`<div class="ag-sub">${sub}</div>`:''}</div>
+          <span class="lstatus ${bcls}">${badge}</span>
+        </div>
+        ${acts}
+      </div>`;
+    }).join('');
+  }
+  $('home-body').innerHTML=h;
+}
+function agendaMark(si,id,status){
+  const s=me().students[si];const c=s.classes.find(x=>x.id===id);if(!c)return;
+  if(status==='done'){curStudent=si;resolveClass(id,'done');return;} // abre os grupos musculares
+  c.status=status;if(status!=='warn')c.recovered=false;
+  maybeOpenNext(s);save();renderAgenda();
+  toast('Falta marcada');
+}
+function agendaReschedule(si,id){openReschedule(si,id);}
+function renderStudentsList(){
+  const list=$('home-body');const arr=me().students;
+  if(!arr.length){list.innerHTML=`<div class="empty"><div class="ico">🧍</div>
+    <p>Nenhum aluno ainda.<br>Toca no <b>+</b> pra adicionar o primeiro.</p></div>`;return;}
+  const order=arr.map((s,i)=>({s,i})).sort((a,b)=>(a.s.inactive?1:0)-(b.s.inactive?1:0));
+  list.innerHTML=order.map(({s,i})=>{
+    return `<div class="student-card${s.inactive?' inactive':''}" onclick="openStudent(${i})">
+      <div class="sc-top">
+        <span class="sc-name">${esc(s.name)}${s.inactive?' <span class="badge-off">inativo</span>':''}</span>
+        ${s.value?`<span class="sc-value">R$ ${esc(s.value)}</span>`:''}
+      </div></div>`;
+  }).join('');
+}
+
+/* ============ Detalhe aluno ============ */
+function openStudent(i){curStudent=i;studentTab='pacote';renderStudent();go('student');}
+function payOf(s,id){return (s.payments||[]).find(p=>(p.classIds||[]).includes(id));}
+function pkgName(p){return 'Pacote #'+pad2(p.seq||0);}
+function pkgClass(p){return 'pkg-c'+(((p.seq||1)-1)%6);}
+function setStudentTab(t){studentTab=t;renderStudent();}
+function currentPkg(s){
+  const withSched=s.payments.filter(p=>(p.classIds||[]).some(id=>{const c=s.classes.find(x=>x.id===id);return c&&c.status==='sched';}));
+  if(withSched.length) return withSched.reduce((a,b)=>a.seq>b.seq?a:b);
+  if(s.payments.length) return s.payments.reduce((a,b)=>a.seq>b.seq?a:b);
+  return null;
+}
+function renderLessonRow(s,c,num,ed,nextId,showPkg){
+  const pay=payOf(s,c.id);
+  const ptag=showPkg?(pay
+      ?`<div class="ltag"><span class="pkgtag plain">📦 ${esc(pkgName(pay))}</span></div>`
+      :`<div class="ltag"><span class="pkgtag none">sem pacote</span></div>`):'';
+  if(c.status==='sched'){
+    const isNext=c.id===nextId;
+    return `<div class="lesson sched${isNext?' next':''}">
+      <div class="lhead">
+        <div class="lnum">${num}</div>
+        <div class="linfo">
+          <div class="ldate">${fmtDate(c.date)}${c.time?' · '+esc(c.time):''}${c.resched?' <span class="badge-off">remarcada</span>':''}</div>
+          ${ptag}
+        </div>
+        <span class="lstatus sched">Agendada</span>
+        ${ed?`<button class="ldel" onclick="delLesson('${c.id}')">🗑</button>`:''}
+      </div>
+      ${ed?`<div class="schedacts">
+        <button class="mini" onclick="resolveClass('${c.id}','done')">✓ Fez</button>
+        <button class="mini" onclick="resolveClass('${c.id}','miss')">✕ Faltou</button>
+        <button class="mini" onclick="resolveClass('${c.id}','warn')">⚠ Avisou</button>
+        <button class="mini" onclick="rescheduleClass('${c.id}')">🗓 Remarcar</button>
+      </div>`:''}
+    </div>`;
+  }
+  let stTxt,stCls,lab;
+  if(c.status==='done'){stCls='done';stTxt='Fez';lab=groupText(c)||'Treino feito';}
+  else if(c.status==='miss'){stCls='miss';stTxt='Faltou';lab='Faltou — perdeu o dia';}
+  else{stCls='warn';stTxt=c.recovered?'Recuperada':'Avisou';lab=c.recovered?('Recuperada'+(c.recoveredOn?' em '+fmtDate(c.recoveredOn):'')+' ✓'):'Avisou — pode recuperar';}
+  return `<div class="lesson">
+    <div class="lnum">${num}</div>
+    <div class="linfo">
+      <div class="ldate">${fmtDate(c.date)}</div>
+      <div class="llabel">${lab}</div>
+      ${ptag}
+    </div>
+    <span class="lstatus ${stCls}">${stTxt}</span>
+    ${ed?`<button class="ldel" onclick="delLesson('${c.id}')">🗑</button>`:''}
+  </div>`;
+}
+function tabPacote(s,ed){
+  const pkg=currentPkg(s);
+  let h=`<div class="startline">${s.time?'⏰ '+esc(s.time)+' · ':''}${(s.weekdays&&s.weekdays.length)?'🗓 '+s.weekdays.map(d=>WD[d]).join(', '):'sem dias fixos'}${s.focus?' · 🎯 '+esc(s.focus):''}</div>`;
+  if(!pkg){
+    h+=`<div class="empty"><div class="ico">📦</div><p>Nenhum pacote ainda.</p></div>`;
+    if(ed){
+      if(s.weekdays&&s.weekdays.length) h+=`<button class="btn btn-primary" onclick="genPackageNow()">🗓 Gerar Pacote #01</button>`;
+      else h+=`<div class="loose">Defina os dias da semana e horário no ✎ pra gerar pacotes automáticos.</div>`;
+      h+=`<button class="btn btn-ghost" onclick="openLessonSheet()" style="margin-top:8px">+ Aula avulsa</button>`;
+    }
+    return h;
+  }
+  const ids=pkg.classIds||[];
+  const cls=ids.map(id=>s.classes.find(x=>x.id===id)).filter(Boolean).sort((a,b)=>a.date.localeCompare(b.date));
+  const doneN=cls.filter(c=>c.status==='done'||(c.status==='warn'&&c.recovered)).length;
+  const total=cls.length;
+  const schedN=cls.filter(c=>c.status==='sched').length;
+  const warnN=cls.filter(c=>c.status==='warn').length;
+  const sc=cls.filter(c=>c.status==='sched');
+  const nextId=sc.length?sc[0].id:null;
+  h+=`<div class="pkg-head">
+    <div class="pkg-head-top">
+      <span class="pkgtag ${pkgClass(pkg)}">📦 ${esc(pkgName(pkg))}</span>
+      <span class="lstatus ${pkg.paid?'done':'warn'}">${pkg.paid?'Pago ✓':'Pendente'}</span>
+    </div>
+    <div class="pkg-prog"><div class="pkg-bar" style="width:${total?Math.round(doneN/total*100):0}%"></div></div>
+    <div class="pkg-meta">${doneN}/${total} feitas · ${schedN} agendadas · ♻️ ${warnN}/2 recuperações</div>
+  </div>`;
+  h+=`<div class="section-title">Aulas do pacote</div>`;
+  h+=cls.map((c,j)=>renderLessonRow(s,c,j+1,ed,nextId,false)).join('');
+  const recs=cls.filter(c=>c.status==='warn'&&!c.recovered);
+  if(recs.length){
+    h+=`<div class="section-title" style="color:var(--rec)">⚠️ Recuperar</div>`;
+    h+=recs.map((c,k)=>`<div class="rec-item"><div class="lnum">${k+1}</div><div class="rdate">${fmtDate(c.date)}</div>${ed?`<button class="rbtn" onclick="markRecovered('${c.id}')">Recuperada ✓</button>`:`<span class="rwait">aguardando</span>`}</div>`).join('');
+  }
+  if(ed){
+    h+=`<button class="btn btn-ghost" onclick="openSummary()" style="margin-top:10px">📋 Gerar resumo / enviar</button>`;
+    h+=`<button class="btn btn-ghost" onclick="openLessonSheet()" style="margin-top:8px">+ Aula avulsa</button>`;
+  } else {
+    h+=`<button class="btn btn-ghost" onclick="openSummary()" style="margin-top:10px">📋 Ver meu resumo</button>`;
+  }
+  return h;
+}
+function tabHistorico(s,ed){
+  const cls=s.classes.filter(c=>c.status!=='sched').sort((a,b)=>b.date.localeCompare(a.date));
+  if(!cls.length) return `<div class="empty"><div class="ico">🕑</div><p>Sem aulas concluídas ainda.</p></div>`;
+  let h=`<div class="section-title">Histórico (${cls.length})</div>`;
+  h+=cls.map((c,j)=>renderLessonRow(s,c,cls.length-j,ed,null,true)).join('');
+  return h;
+}
+function tabDashboard(s,ed){
+  const stt=computeStats(s);
+  const startD=s.start||stt.start;
+  let h=`<div class="section-title">Resumo</div>`;
+  h+=`<div class="stats">
+    <div class="stat"><div class="snum">${stt.done}</div><div class="slab">Feitos</div></div>
+    <div class="stat"><div class="snum">${stt.miss}</div><div class="slab">Faltas</div></div>
+    <div class="stat"><div class="snum">${stt.rec}</div><div class="slab">A recuperar</div></div>
+  </div>`;
+  const horarioDias=`${s.time?`⏰ ${esc(s.time)}`:''}${(s.time&&s.weekdays&&s.weekdays.length)?' · ':''}${(s.weekdays&&s.weekdays.length)?`🗓 ${s.weekdays.map(d=>WD[d]).join(', ')}`:''}`;
+  h+=`<div class="section-title">Informações</div>`;
+  h+=`<div class="set-card">
+    <div class="startline">📅 Início ${startD?fmtDate(startD):'—'}</div>
+    ${horarioDias?`<div class="startline">${horarioDias}</div>`:''}
+    ${s.focus?`<div class="startline">🎯 Foco: <b>${esc(s.focus)}</b></div>`:''}
+  </div>`;
+  if(Object.keys(stt.byGroup).length){
+    h+=`<div class="section-title">Por grupo muscular</div>`;
+    h+=`<div class="groups-sum">${Object.entries(stt.byGroup).sort((a,b)=>b[1]-a[1]).map(([g,n])=>`<span class="gsum">${esc(g)} <b>${n}</b></span>`).join('')}</div>`;
+  }
+  if(ed){
+    const acts=s.code?`<button class="mini" onclick="copyCode()">Copiar</button>
+       <button class="mini" onclick="newCode()">Novo</button>
+       <button class="mini danger" onclick="removeStudentCode()">Remover</button>`
+      :`<button class="mini" onclick="newCode()">Criar código</button>`;
+    h+=`<div class="section-title">Acesso do aluno</div>`;
+    h+=`<div class="codebox"><div class="cb-row">🔑 Código: ${s.code?`<b>${esc(s.code)}</b>`:'<i>sem código</i>'} · só leitura</div><div class="cb-actions">${acts}</div></div>`;
+    h+=`<div class="section-title">Gerenciar</div>`;
+    h+=`<button class="btn btn-ghost" onclick="toggleInactive()" style="color:${s.inactive?'var(--done)':'var(--miss)'}">${s.inactive?'▶ Reativar aluno':'⏸ Inativar aluno'}</button>`;
+    h+=`<button class="btn btn-ghost" onclick="deleteStudent()" style="color:var(--miss);border-color:var(--miss-soft)">🗑 Excluir aluno</button>`;
+  }
+  return h;
+}
+function tabPagamentos(s,ed){
+  let h=`<div class="section-title">Pacotes / pagamentos</div>`;
+  if(!s.payments.length){
+    h+=`<div class="empty" style="padding:18px 10px"><p>Nenhum pacote ainda.</p></div>`;
+  } else {
+    h+=s.payments.map((p,k)=>{
+      const ids=p.classIds||[];
+      const warnN=s.classes.filter(c=>ids.includes(c.id)&&c.status==='warn').length;
+      const over=warnN>2;
+      const meta=ids.length?`${ids.length} aula${ids.length===1?'':'s'} · ♻️ ${warnN}/2`:'sem aulas vinculadas';
+      return `<div class="pay-item ${p.paid?'paid':'pending'}" ${ed?`onclick="editPayment(${k})" style="cursor:pointer"`:'style="cursor:default"'}>
+        <div class="pinfo">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="pkgtag plain">📦 ${esc(pkgName(p))}</span>
+            <span class="pval">R$ ${esc(p.value)||'—'}</span>
+          </div>
+          <div class="pnote">${p.note?esc(p.note)+' · ':''}${fmtDate(p.date)} · ${meta}</div>
+          ${over?`<div class="pwarn">⚠ ${warnN} recuperações — passou do limite de 2</div>`:''}
+        </div>
+        ${ed?`<button class="ptoggle ${p.paid?'on':''}" onclick="event.stopPropagation();togglePay(${k})">${p.paid?'Pago ✓':'Pendente'}</button>
+             <button class="ldel" onclick="event.stopPropagation();delPay(${k})">🗑</button>`
+            :`<span class="ptoggle ${p.paid?'on':''}" style="cursor:default">${p.paid?'Pago ✓':'Pendente'}</span>`}
+      </div>`;
+    }).join('');
+  }
+  if(ed){
+    if(s.weekdays&&s.weekdays.length) h+=`<button class="btn btn-ghost" onclick="genPackageNow()" style="margin-top:8px">🗓 Gerar próximo pacote</button>`;
+    h+=`<button class="btn btn-ghost" onclick="openPaymentSheet()" style="margin-top:8px">+ Pagamento avulso</button>`;
+  }
+  return h;
+}
+function renderStudent(){
+  const ed=canEdit();
+  const s=me().students[curStudent];
+  $('st-name').textContent=s.name;
+  $('st-value').textContent=s.value?`R$ ${s.value} / pacote`:'Sem valor definido';
+  document.querySelectorAll('#student-tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===studentTab));
+  let html='';
+  if(readonly) html+=`<div class="ro-banner">👀 Você está vendo como aluno — somente leitura.</div>`;
+  if(ed && s.inactive) html+=`<div class="ro-banner" style="background:var(--miss-soft);color:var(--miss);border-color:var(--miss)">⏸️ Aluno inativo — não consegue acessar o app.</div>`;
+  if(studentTab==='pacote') html+=tabPacote(s,ed);
+  else if(studentTab==='hist') html+=tabHistorico(s,ed);
+  else if(studentTab==='dash') html+=tabDashboard(s,ed);
+  else html+=tabPagamentos(s,ed);
+  $('student-detail').innerHTML=html;
+}
+
+/* ============ Aulas ============ */
+function openLessonSheet(){resolvingId=null;lessonStatus='done';selectedGroups=[];pickStatus('done');renderGroupChips();
+  $('sl-date').valueAsDate=new Date();openSheet('sheet-lesson');}
+function renderGroupChips(){
+  $('sl-groups').innerHTML = me().groups.map((g,i)=>
+    `<button class="gchip${selectedGroups.includes(g)?' sel':''}" onclick="selectGroup(${i})">${esc(g)}</button>`
+  ).join('') + `<button class="gchip add" onclick="addGroup()">+ Novo</button>`;
+}
+function selectGroup(i){const g=me().groups[i];
+  const k=selectedGroups.indexOf(g);
+  if(k>=0)selectedGroups.splice(k,1);else selectedGroups.push(g);
+  renderGroupChips();}
+function addGroup(){
+  const n=prompt('Nome do novo grupo muscular:');
+  if(n&&n.trim()){const v=n.trim();if(!me().groups.includes(v)){me().groups.push(v);save();}
+    if(!selectedGroups.includes(v))selectedGroups.push(v);renderGroupChips();}
+}
+function pickStatus(st){lessonStatus=st;
+  document.querySelectorAll('#sl-seg button').forEach(b=>{b.className='';if(b.dataset.st===st)b.className='sel-'+st;});
+  $('sl-label-field').style.display = st==='done'?'block':'none';
+  $('sl-status-hint').textContent = STATUS_HINT[st]||'';}
+function saveLesson(){
+  const date=$('sl-date').value;
+  if(!date) return toast('Escolhe a data');
+  const s=me().students[curStudent];
+  const wasResolve=!!resolvingId;
+  if(resolvingId){
+    const c=s.classes.find(x=>x.id===resolvingId);
+    if(c){c.date=date;c.status=lessonStatus;c.groups=lessonStatus==='done'?selectedGroups.slice():[];if(lessonStatus!=='warn')c.recovered=false;}
+    resolvingId=null;
+  } else {
+    s.classes.push({id:uid(),date,status:lessonStatus,groups:lessonStatus==='done'?selectedGroups.slice():[],recovered:false});
+  }
+  s.classes.sort((a,b)=>a.date.localeCompare(b.date));
+  if(wasResolve) maybeOpenNext(s);
+  save();closeSheet('sheet-lesson');
+  if($('v-home').classList.contains('active')) renderAgenda(); else renderStudent();
+  toast(lessonStatus==='warn'?'Aula lançada — vai pra recuperação ✓':'Aula salva ✓');
+}
+function delLesson(id){
+  const s=me().students[curStudent];
+  s.classes=s.classes.filter(c=>c.id!==id);
+  s.payments.forEach(p=>{p.classIds=(p.classIds||[]).filter(x=>x!==id);});
+  save();renderStudent();toast('Removida');
+}
+let recoveringId=null, recoverGroups=[];
+function renderRecoverChips(){
+  $('rc-groups').innerHTML = me().groups.map((g,i)=>
+    `<button class="gchip${recoverGroups.includes(g)?' sel':''}" onclick="toggleRecoverGroup(${i})">${esc(g)}</button>`
+  ).join('') + `<button class="gchip add" onclick="addRecoverGroup()">+ Novo</button>`;
+}
+function toggleRecoverGroup(i){const g=me().groups[i];const k=recoverGroups.indexOf(g);
+  if(k>=0)recoverGroups.splice(k,1);else recoverGroups.push(g);renderRecoverChips();}
+function addRecoverGroup(){const n=prompt('Nome do novo grupo muscular:');
+  if(n&&n.trim()){const v=n.trim();if(!me().groups.includes(v)){me().groups.push(v);save();}
+    if(!recoverGroups.includes(v))recoverGroups.push(v);renderRecoverChips();}}
+function markRecovered(id){
+  recoveringId=id;
+  const c=me().students[curStudent].classes.find(x=>x.id===id);
+  $('rc-date').value=(c&&c.recoveredOn)?c.recoveredOn:fmtISO(new Date());
+  recoverGroups=(c&&c.recoveredGroups)?c.recoveredGroups.slice():[];
+  renderRecoverChips();
+  if(c) $('rc-hint').textContent=`Aula avisada em ${fmtDate(c.date)}. Escolha o dia da reposição e os grupos treinados.`;
+  openSheet('sheet-recover');
+}
+function saveRecover(){
+  const d=$('rc-date').value;
+  if(!d) return toast('Escolhe a data');
+  const c=me().students[curStudent].classes.find(x=>x.id===recoveringId);
+  if(c){c.recovered=true;c.recoveredOn=d;c.recoveredGroups=recoverGroups.slice();}
+  recoveringId=null;
+  save();closeSheet('sheet-recover');renderStudent();
+  toast('Recuperada em '+fmtDate(d)+' ✓');
+}
+
+/* ============ Motor de pacotes (Fase 2) ============ */
+let resolvingId=null;
+function pad2(n){return String(n).padStart(2,'0');}
+function parseD(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
+function fmtISO(dt){return dt.getFullYear()+'-'+pad2(dt.getMonth()+1)+'-'+pad2(dt.getDate());}
+function addDays(s,n){const d=parseD(s);d.setDate(d.getDate()+n);return fmtISO(d);}
+function weekdayOf(s){return parseD(s).getDay();}
+function generatePackage(s){
+  if(!s.weekdays||!s.weekdays.length) return null;
+  let startISO;
+  if(s.classes.length){
+    const last=s.classes.reduce((a,c)=>c.date>a?c.date:a,s.classes[0].date);
+    startISO=addDays(last,1);
+  } else {
+    const today=fmtISO(new Date());
+    startISO=(s.start && s.start>today)?s.start:today; // pacote em andamento começa de hoje (ou início futuro)
+  }
+  const target=s.weekdays.length*4, wd=new Set(s.weekdays), novas=[];
+  let cur=startISO, guard=0;
+  while(novas.length<target && guard<500){
+    if(wd.has(weekdayOf(cur))) novas.push({id:uid(),date:cur,status:'sched',groups:[],recovered:false,time:s.time||''});
+    cur=addDays(cur,1); guard++;
+  }
+  s.classes.push(...novas);
+  s.classes.sort((a,b)=>a.date.localeCompare(b.date));
+  const seq=Math.max(0,...s.payments.map(p=>p.seq||0))+1;
+  s.payments.push({value:s.value||'',date:startISO,paid:false,seq,classIds:novas.map(c=>c.id)});
+  s.payments.sort((a,b)=>b.date.localeCompare(a.date));
+  return seq;
+}
+function maybeOpenNext(s){
+  if(!s.weekdays||!s.weekdays.length) return;
+  if(!s.classes.some(c=>c.status==='sched')) generatePackage(s);
+}
+function genPackageNow(){
+  const s=me().students[curStudent];const seq=generatePackage(s);
+  save();renderStudent();
+  toast(seq?('Pacote #'+pad2(seq)+' gerado ✓'):'Defina os dias da semana primeiro');
+}
+function resolveClass(id,status){
+  const s=me().students[curStudent];const c=s.classes.find(x=>x.id===id);if(!c)return;
+  if(status==='done'){
+    resolvingId=id;lessonStatus='done';selectedGroups=[];pickStatus('done');renderGroupChips();
+    $('sl-date').value=c.date;openSheet('sheet-lesson');
+  } else {
+    c.status=status;if(status!=='warn')c.recovered=false;
+    maybeOpenNext(s);save();renderStudent();
+    toast(status==='miss'?'Marcada como falta':'Avisou — vai pra recuperação ✓');
+  }
+}
+let reschedCtx={si:null,id:null};
+function rescheduleClass(id){openReschedule(curStudent,id);}
+function findConflict(dateISO,time,exceptId){
+  const res=[];
+  me().students.forEach((s,si)=>{
+    if(s.inactive)return;
+    s.classes.forEach(c=>{
+      if(c.id===exceptId||c.status!=='sched')return;
+      const ct=c.time||s.time||'';
+      if(c.date===dateISO && time && ct===time) res.push({s,si,c});
+    });
+  });
+  return res;
+}
+function openReschedule(si,id){
+  reschedCtx={si,id};
+  const s=me().students[si];const c=s.classes.find(x=>x.id===id);if(!c)return;
+  $('rs-date').value=c.date;$('rs-time').value=c.time||s.time||'';
+  checkReschedConflict();openSheet('sheet-resched');
+}
+function checkReschedConflict(){
+  const conf=findConflict($('rs-date').value,$('rs-time').value,reschedCtx.id);
+  const el=$('rs-conflict');
+  if(conf.length){el.style.display='block';el.textContent='⚠️ Conflito: '+conf.map(x=>x.s.name).join(', ')+' já tem aula nesse dia/horário.';}
+  else{el.style.display='none';}
+}
+let pendingResched=null; // {si,id,date,time,conf}
+function applyReschedule(si,id,date,time){
+  const s=me().students[si];const c=s.classes.find(x=>x.id===id);if(!c)return;
+  c.date=date;if(time)c.time=time;c.resched=true;
+  s.classes.sort((a,b)=>a.date.localeCompare(b.date));
+}
+function finishReschedule(date,time){
+  save();closeSheet('sheet-conflict');closeSheet('sheet-resched');
+  if($('v-home').classList.contains('active')) renderAgenda(); else renderStudent();
+  toast('Remarcada pra '+fmtDate(date)+(time?' · '+time:''));
+}
+function saveReschedule(){
+  const {si,id}=reschedCtx;const s=me().students[si];const c=s.classes.find(x=>x.id===id);if(!c)return;
+  const date=$('rs-date').value,time=$('rs-time').value;
+  if(!date) return toast('Escolhe a data');
+  const conf=findConflict(date,time,id);
+  if(conf.length){
+    pendingResched={si,id,date,time,conf};
+    openConflictSheet();
+    return;
+  }
+  applyReschedule(si,id,date,time);
+  finishReschedule(date,time);
+}
+function openConflictSheet(){
+  const {date,time,conf}=pendingResched;
+  const names=conf.map(x=>x.s.name).join(', ');
+  const other=conf.length>1?'os outros':conf[0].s.name;
+  $('cf-msg').innerHTML=`<b>${esc(names)}</b> já tem aula às ${esc(time||'--:--')} em ${fmtDate(date)}.<br>Como você quer resolver?`;
+  $('cf-other-name').textContent=other;
+  $('cf-other-name2').textContent=other;
+  $('cf-other-time').value=time||'';
+  hideMoveOther();
+  openSheet('sheet-conflict');
+}
+function conflictKeepBoth(){
+  const {si,id,date,time}=pendingResched;
+  applyReschedule(si,id,date,time);
+  pendingResched=null;
+  finishReschedule(date,time);
+}
+function showMoveOther(){$('cf-choices').style.display='none';$('cf-move').style.display='block';checkMoveConflict();}
+function hideMoveOther(){$('cf-choices').style.display='block';$('cf-move').style.display='none';$('cf-move-warn').style.display='none';}
+function checkMoveConflict(){
+  if(!pendingResched)return;
+  const {id,date,conf}=pendingResched;
+  const newTime=$('cf-other-time').value;
+  const otherIds=conf.map(x=>x.c.id);
+  const w=$('cf-move-warn');
+  if(!newTime){w.style.display='none';return;}
+  const reConf=findConflict(date,newTime,id).filter(x=>!otherIds.includes(x.c.id));
+  if(reConf.length){w.style.display='block';w.textContent='⚠️ '+reConf.map(x=>x.s.name).join(', ')+' também tem aula às '+newTime+'.';}
+  else{w.style.display='none';}
+}
+function confirmMoveOther(){
+  const newTime=$('cf-other-time').value;
+  if(!newTime) return toast('Escolhe o novo horário');
+  const {si,id,date,time,conf}=pendingResched;
+  if(newTime===time) return toast('Esse é o mesmo horário do conflito');
+  const otherIds=conf.map(x=>x.c.id);
+  const reConf=findConflict(date,newTime,id).filter(x=>!otherIds.includes(x.c.id));
+  if(reConf.length && !confirm('⚠️ '+reConf.map(x=>x.s.name).join(', ')+' também tem aula às '+newTime+' em '+fmtDate(date)+'.\n\nMover mesmo assim?')) return;
+  conf.forEach(x=>{x.c.time=newTime;x.c.resched=true;});
+  const movedNames=conf.map(x=>x.s.name).join(', ');
+  applyReschedule(si,id,date,time);
+  pendingResched=null;
+  save();closeSheet('sheet-conflict');closeSheet('sheet-resched');
+  if($('v-home').classList.contains('active')) renderAgenda(); else renderStudent();
+  toast(movedNames+' → '+newTime+' ✓');
+}
+
+/* ============ Stats ============ */
+function computeStats(s){
+  const doneReal=s.classes.filter(c=>c.status==='done');
+  const recoveredN=s.classes.filter(c=>c.status==='warn'&&c.recovered).length;
+  const miss=s.classes.filter(c=>c.status==='miss');
+  const rec=s.classes.filter(c=>c.status==='warn'&&!c.recovered);
+  const start=s.classes.length?s.classes[0].date:null;
+  const byGroup={};
+  doneReal.forEach(c=>{
+    const gs=c.groups&&c.groups.length?c.groups:['Sem grupo'];
+    gs.forEach(g=>{byGroup[g]=(byGroup[g]||0)+1;});
+  });
+  return {done:doneReal.length+recoveredN,miss:miss.length,rec:rec.length,start,byGroup};
+}
+
+/* ============ Pagamentos ============ */
+let editingPayment=null;
+function coveredIds(exceptK){
+  const s=me().students[curStudent];const set=new Set();
+  s.payments.forEach((p,i)=>{if(i!==exceptK)(p.classIds||[]).forEach(id=>set.add(id));});
+  return set;
+}
+function renderPayClasses(sel){
+  const s=me().students[curStudent];const wrap=$('pa-classes');
+  if(!s.classes.length){wrap.innerHTML=`<div class="hint" style="margin:0">Nenhuma aula lançada ainda.</div>`;return;}
+  wrap.innerHTML=s.classes.map(c=>{
+    const tag=c.status==='done'?'Fez':c.status==='miss'?'Faltou':c.status==='warn'?(c.recovered?'Recuperada':'Avisou'):'Agendada';
+    return `<label class="paycheck">
+      <input type="checkbox" value="${c.id}" ${sel.includes(c.id)?'checked':''}>
+      <span class="pc-date">${fmtDate(c.date)}</span>
+      <span class="pc-tag ${c.status}">${tag}</span>
+    </label>`;
+  }).join('');
+}
+function openPaymentSheet(){
+  editingPayment=null;payStatus='paid';pickPayStatus('paid');
+  const s=me().students[curStudent];
+  $('pay-title').textContent='Registrar pagamento';
+  $('pa-value').value=s.value||'';
+  $('pa-date').valueAsDate=new Date();$('pa-note').value='';
+  const cov=coveredIds(null);
+  const sel=s.classes.filter(c=>!cov.has(c.id)).map(c=>c.id); // pré-marca aulas ainda sem pagamento
+  renderPayClasses(sel);
+  openSheet('sheet-pay');
+}
+function editPayment(k){
+  editingPayment=k;const p=me().students[curStudent].payments[k];
+  payStatus=p.paid?'paid':'pending';pickPayStatus(payStatus);
+  $('pay-title').textContent='Editar pagamento';
+  $('pa-value').value=p.value||'';$('pa-date').value=p.date||'';$('pa-note').value=p.note||'';
+  renderPayClasses(p.classIds||[]);
+  openSheet('sheet-pay');
+}
+function pickPayStatus(st){payStatus=st;
+  document.querySelectorAll('#pa-seg button').forEach(b=>{b.className='';
+    if(b.dataset.st===st)b.className=st==='paid'?'sel-done':'sel-miss';});}
+function savePayment(){
+  const v=$('pa-value').value.trim(),d=$('pa-date').value;
+  if(!v) return toast('Coloca o valor');
+  if(!d) return toast('Coloca a data');
+  const ids=[...document.querySelectorAll('#pa-classes input:checked')].map(i=>i.value);
+  const s=me().students[curStudent];
+  const data={value:v,date:d,note:$('pa-note').value.trim(),paid:payStatus==='paid',classIds:ids};
+  const wasEdit = editingPayment!==null;
+  if(wasEdit){Object.assign(s.payments[editingPayment],data);}
+  else{const seq=Math.max(0,...s.payments.map(p=>p.seq||0))+1;s.payments.push({...data,seq});}
+  s.payments.sort((a,b)=>b.date.localeCompare(a.date));
+  save();closeSheet('sheet-pay');renderStudent();
+  const warnN=s.classes.filter(c=>ids.includes(c.id)&&c.status==='warn').length;
+  if(warnN>2) toast(`⚠ ${warnN} recuperações nesse pacote (limite é 2)`);
+  else toast(wasEdit?'Pagamento atualizado ✓':'Pagamento registrado ✓');
+}
+function togglePay(k){const p=me().students[curStudent].payments[k];p.paid=!p.paid;save();renderStudent();}
+function delPay(k){me().students[curStudent].payments.splice(k,1);save();renderStudent();toast('Removido');}
+
+/* ============ Resumo / WhatsApp ============ */
+let summaryModel='std';
+function buildSummary(model){
+  model=model||summaryModel;
+  const s=me().students[curStudent];
+  const pkg=currentPkg(s);
+  const ids=pkg?(pkg.classIds||[]):null;
+  let cls=ids?s.classes.filter(c=>ids.includes(c.id)):s.classes.slice();
+  cls=cls.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  return model==='coach'?summaryCoach(s,pkg,cls):summaryStd(s,pkg,cls);
+}
+function recLine(c){
+  return c.recovered
+    ? (c.recoveredOn?` - recuperada dia ${fmtShort(c.recoveredOn)}`:' - recuperada')
+    : ' - a recuperar';
+}
+// Lista de "Treinos": aulas normais + as recuperadas (na data da reposição, com o grupo treinado). Pendentes de recuperar ficam de fora.
+function treinoItems(cls){
+  const items=[];
+  cls.forEach(c=>{
+    if(c.status==='warn'){
+      if(c.recovered) items.push({date:c.recoveredOn||c.date, status:'done', groups:c.recoveredGroups||[]});
+    } else {
+      items.push({date:c.date, status:c.status, groups:c.groups||[]});
+    }
+  });
+  return items.sort((a,b)=>a.date.localeCompare(b.date));
+}
+function summaryStd(s,pkg,cls){
+  const treinos=treinoItems(cls);
+  const recArr=cls.filter(c=>c.status==='warn');
+  let t=`Relatório de aulas ${s.name}.\n`;
+  if(pkg) t+=`${pkgName(pkg)}\n`;
+  if(s.value) t+=`R$${s.value}\n`;
+  t+=`\n*Aulas* 👇\n`;
+  treinos.forEach((c,j)=>{
+    const st=c.status==='done'?((c.groups&&c.groups.length)?c.groups.join(', '):'feito')
+            :c.status==='sched'?'agendada'
+            :'falta';
+    t+=`${j+1} - ${fmtShort(c.date)} - ${st}\n`;
+  });
+  if(recArr.length){
+    t+=`\n*Aulas para recuperar*\n`;
+    recArr.forEach((c,k)=>{t+=`${k+1} - ${fmtShort(c.date)}${recLine(c)}\n`;});
+  }
+  return t.trim();
+}
+function summaryCoach(s,pkg,cls){
+  const treinos=treinoItems(cls);
+  const recArr=cls.filter(c=>c.status==='warn');
+  let t=`Olá ${s.name}! 💪\n\n`;
+  const meta=[];
+  if(pkg) meta.push(`*${pkgName(pkg)}*`);
+  if(s.value) meta.push(`R$ ${s.value}`);
+  if(meta.length) t+=meta.join(' · ')+'\n';
+  t+=`\n*Treinos*\n\n`;
+  treinos.forEach(c=>{
+    let ico,lab;
+    if(c.status==='done'){ico='✅';lab=(c.groups&&c.groups.length)?c.groups.join(', '):'Feito';}
+    else if(c.status==='miss'){ico='❌';lab='Faltou';}
+    else{ico='📅';lab='Agendada';}
+    t+=`${ico}  -  ${fmtShort(c.date)} — ${lab}\n`;
+  });
+  if(recArr.length){
+    t+=`\n*Aulas para recuperar*\n`;
+    recArr.forEach((c,k)=>{t+=`${k+1} - ${fmtShort(c.date)}${recLine(c)}\n`;});
+  }
+  return t.trim();
+}
+function agendaResumo(si){curStudent=si;openSummary();}
+function setSummaryModel(m){
+  summaryModel=m;
+  localStorage.setItem(SUMMARY_KEY,m); // lembra a última escolha
+  document.querySelectorAll('#sm-seg button').forEach(b=>b.classList.toggle('sel', b.dataset.m===m));
+  renderSummaryPreview();
+}
+function renderSummaryPreview(){
+  $('summary-text').innerHTML=esc(buildSummary()).replace(/\*([^*]+)\*/g,'<b>$1</b>');
+}
+function openSummary(){
+  summaryModel=localStorage.getItem(SUMMARY_KEY)||'std';
+  document.querySelectorAll('#sm-seg button').forEach(b=>b.classList.toggle('sel', b.dataset.m===summaryModel));
+  renderSummaryPreview();openSheet('sheet-summary');
+}
+function copySummary(){navigator.clipboard.writeText(buildSummary()).then(()=>toast('Copiado ✓'),()=>toast('Não consegui copiar'));}
+function sendWhatsApp(){
+  const s=me().students[curStudent];const raw=buildSummary();
+  const isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(isMobile){
+    // celular: link com texto já funciona (emojis vão certos)
+    const txt=encodeURIComponent(raw);
+    window.open(s.phone?`https://wa.me/55${s.phone}?text=${txt}`:`https://wa.me/?text=${txt}`,'_blank');
+    return;
+  }
+  // computador: o link quebra os emojis → copia o texto certo e abre a conversa vazia pra colar (Cmd+V)
+  if(navigator.clipboard) navigator.clipboard.writeText(raw).catch(()=>{});
+  if(s.phone) window.open(`https://wa.me/55${s.phone}`,'_blank');
+  toast(s.phone?'Texto copiado! Cole (Cmd+V) na conversa e envie':'Texto copiado! Cole no WhatsApp e envie');
+}
+
+/* ============ Helpers ============ */
+function openSheet(id){$(id).classList.add('open');}
+function closeSheet(id){$(id).classList.remove('open');}
+/* fechar ao tocar fora do conteúdo */
+document.querySelectorAll('.sheet-bg').forEach(bg=>{
+  bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');});
+});
+function maskMoney(el){
+  let v=(el.value||'').replace(/\D/g,'').replace(/^0+/,'');
+  if(!v){el.value='';return;}
+  while(v.length<3)v='0'+v;
+  const cents=v.slice(-2),int=v.slice(0,-2);
+  el.value=int.replace(/\B(?=(\d{3})+(?!\d))/g,'.')+','+cents;
+}
+function maskPhone(el){
+  let d=(el.value||'').replace(/\D/g,'').slice(0,11);
+  if(!d){el.value='';return;}
+  let out='('+d.slice(0,2);
+  if(d.length===2){ out+=') '; }
+  else if(d.length>2){
+    const r=d.slice(2);
+    out+=') '+r.slice(0,1);
+    if(r.length>1) out+='.'+r.slice(1,5);
+    if(r.length>5) out+='-'+r.slice(5,9);
+  }
+  el.value=out;
+}
+function esc(s){return (s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));}
+function fmtDate(d){const[y,m,dd]=d.split('-');return `${dd}/${m}/${y}`;}
+function fmtShort(d){const[y,m,dd]=d.split('-');return `${dd}/${m}`;}
+let toastTimer;
+function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),1800);}
+
+/* ============ Migração de dados antigos ============ */
+function migrate(){
+  for(const u in db.users){
+    const usr=db.users[u];
+    if(!usr.groups) usr.groups=[...DEFAULT_GROUPS];
+    (usr.students||[]).forEach(s=>{
+      if(!s.payments)s.payments=[];
+      if(!s.code) s.code=genCode();
+      s.classes.forEach(c=>{
+        if(!c.id)c.id=uid();
+        if(!c.groups) c.groups = c.label?[c.label]:[];
+        if(c.recovered===undefined) c.recovered=false;
+      });
+      s.payments.forEach(p=>{if(!p.classIds)p.classIds=[];});
+      let mxSeq=Math.max(0,...s.payments.map(p=>p.seq||0));
+      s.payments.forEach(p=>{if(!p.seq)p.seq=++mxSeq;});
+    });
+  }
+  save();
+}
+
+/* ============ Conta demo (criada na 1ª vez) ============ */
+function seedDemo(){
+  if(db.users['demo']) return;
+  const mk=(date,status,groups,recovered)=>({id:uid(),date,status,groups:groups||[],recovered:!!recovered});
+  const inMonth=(c,m)=>c.date.slice(0,7)===m;
+
+  const ana={
+    name:'Ana Demo', focus:'Hipertrofia', value:'200,00', phone:'51999990000', code:'ANA123',
+    start:'2026-01-06', weekdays:[1,3], time:'07:00',
+    classes:[
+      // Janeiro (início)
+      mk('2026-01-06','done',['Perna']),
+      mk('2026-01-08','done',['Peito']),
+      mk('2026-01-13','done',['Costas']),
+      mk('2026-01-15','done',['Ombro']),
+      mk('2026-01-20','miss',[]),
+      mk('2026-01-22','done',['Bíceps','Tríceps']),
+      mk('2026-01-27','warn',[],true),   // avisou e já recuperou
+      mk('2026-01-29','done',['Abdômen']),
+      // Fevereiro
+      mk('2026-02-03','done',['Glúteo']),
+      mk('2026-02-05','done',['Cardio']),
+      mk('2026-02-10','done',['Full Body']),
+      mk('2026-02-12','done',['Perna','Glúteo']),
+      mk('2026-02-17','warn',[],true),   // recuperada
+      mk('2026-02-19','miss',[]),
+      mk('2026-02-24','done',['Peito','Tríceps']),
+      // Março
+      mk('2026-03-03','done',['Costas','Bíceps']),
+      mk('2026-03-05','done',['Ombro']),
+      mk('2026-03-10','warn',[],false),  // a recuperar (pendente)
+      mk('2026-03-12','done',['Abdômen','Cardio']),
+      mk('2026-03-17','done',['Full Body']),
+      // Abril
+      mk('2026-04-07','done',['Perna']),
+      mk('2026-04-09','miss',[]),
+      mk('2026-04-14','done',['Peito']),
+      mk('2026-04-16','warn',[],false),  // a recuperar (pendente)
+      // Maio
+      mk('2026-05-05','done',['Costas','Ombro']),
+      mk('2026-05-07','done',['Glúteo','Perna']),
+      // Junho (ainda sem pagamento → mostra "sem pagamento")
+      mk('2026-06-02','done',['Cardio']),
+      mk('2026-06-04','done',['Bíceps','Tríceps','Ombro']),
+      mk('2026-06-09','done',['Full Body']),
+      mk('2026-06-11','miss',[])
+    ],
+    payments:[]
+  };
+  ana.payments=[
+    {value:'200,00',date:'2026-01-06',note:'Janeiro',  seq:1, paid:true,  classIds:ana.classes.filter(c=>inMonth(c,'2026-01')).map(c=>c.id)},
+    {value:'200,00',date:'2026-02-03',note:'Fevereiro',seq:2, paid:true,  classIds:ana.classes.filter(c=>inMonth(c,'2026-02')).map(c=>c.id)},
+    {value:'200,00',date:'2026-03-03',note:'Março',    seq:3, paid:false, classIds:ana.classes.filter(c=>inMonth(c,'2026-03')).map(c=>c.id)},
+    {value:'200,00',date:'2026-04-07',note:'Abril',    seq:4, paid:true,  classIds:ana.classes.filter(c=>inMonth(c,'2026-04')).map(c=>c.id)},
+    {value:'200,00',date:'2026-05-05',note:'Maio',     seq:5, paid:true,  classIds:ana.classes.filter(c=>inMonth(c,'2026-05')).map(c=>c.id)}
+  ];
+
+  const bruno={
+    name:'Bruno Demo', focus:'Emagrecimento', value:'180,00', phone:'', code:'BRU456',
+    start:'2026-05-12', weekdays:[2,4], time:'18:30',
+    classes:[
+      mk('2026-05-12','done',['Perna']),
+      mk('2026-05-14','miss',[]),
+      mk('2026-05-19','warn',[],false),
+      mk('2026-05-21','done',['Peito','Costas'])
+    ],
+    payments:[]  // sem pagamento → demonstra "não pagamento"
+  };
+
+  const carlos={
+    name:'Carlos Demo', focus:'Condicionamento', value:'240,00', phone:'', code:'CAR789',
+    start:'2026-06-01', weekdays:[1,3], time:'07:00', classes:[], payments:[]
+  };
+  generatePackage(carlos); // gera Pacote #01 com datas (Seg/Qua, 4 semanas)
+
+  db.users['demo']={pin:'1234', name:'Personal Demo', groups:[...DEFAULT_GROUPS], students:[ana,bruno,carlos]};
+  save();
+}
+
+/* ============ Boot ============ */
+seedDemo();
+migrate();
+applyRoleUI();
+pickRole('personal');
+(function(){
+  const role=localStorage.getItem(ROLE_KEY);
+  if(session && db.users[session]){
+    if(role==='aluno'){
+      const f=findByCode(localStorage.getItem(CODE_KEY)||'');
+      if(f && !db.users[f.user].students[f.idx].inactive) enterAluno(f.user,f.idx); else logout();
+    } else {
+      enterApp();
+    }
+  }
+})();
+</script>
+</body>
+</html>
