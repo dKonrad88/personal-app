@@ -6,6 +6,8 @@
 <title>Treino • App do Personal</title>
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Treino">
 <meta name="theme-color" content="#0E2A47">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -394,8 +396,8 @@
 
   /* ===== No celular: sem moldura, ocupa a tela toda (é um app de celular) ===== */
   @media (max-width:600px){
-    body{padding:0;background:var(--bg);display:block;min-height:100dvh}
-    .phone{width:100%;height:100dvh;border-radius:0;padding:0;box-shadow:none}
+    body{padding:0;background:var(--blue-deep);display:block;min-height:100dvh}
+    .phone{width:100%;height:100dvh;border-radius:0;padding:0;padding-top:env(safe-area-inset-top);box-shadow:none;background:var(--blue-deep)}
     .screen{border-radius:0;height:100%}
     .island,.statusbar,.themebtn{display:none}
   }
